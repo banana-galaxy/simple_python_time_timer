@@ -19,10 +19,13 @@ class Window:
         pygame.display.set_caption("time timer")
         self.mouse = (pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0])
 
+        self.size_divider = 2
+
         if self.height < self.width:
-            circle_size = self.height/3*2
+            circle_size = self.height/self.size_divider
         else:
-            circle_size = self.width / 3 * 2
+            circle_size = self.width / self.size_divider
+        print(circle_size)
         self.circle = Circle(circle_size)
         self.circle_coord = [self.width/2-circle_size/2, self.height/2-circle_size/2]
 
@@ -33,6 +36,7 @@ class Window:
 
         numbers = Number()
         self.numbers = [Text(str(i//6), circle_size/10, [self.width/2+math.cos(math.radians(self.circle.get_usable_angle(i)))*circle_size/1.7, self.height/2+math.sin(math.radians(self.circle.get_usable_angle(i)))*circle_size/1.7]) for i in numbers]
+        self.time_left = Text(f"{int(self.timer.get_time()//60)}:{int(self.timer.get_time()%60)}", circle_size/10, [self.width/2, self.height/10])
 
     def update(self):
         self.get_win_size()
@@ -40,6 +44,9 @@ class Window:
         self.get_mouse()
         self.update_circle_sizes()
         self.update_numbers()
+        self.circle.update_polygon_size()
+        self.time_left.update(self.circle.size / 10, [self.width / 2, self.height / 10])
+        self.time_left.update_text(f"{int(self.timer.get_time()//60)}:{int(self.timer.get_time()%60)}")
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -54,12 +61,15 @@ class Window:
         if self.state.get_state() == "set":
             if self.mouse[1]:
                 self.circle.update([self.mouse[0][0]-self.circle_coord[0], self.mouse[0][1]-self.circle_coord[1]])
+            self.get_time_from_angle()
+            self.timer.start(self.set_time)
         elif self.state.get_state() == "run":
             self.circle.update([self.get_angle_from_time()])
 
     def draw(self):
         self.window.fill((255, 255, 255))
         self.circle.draw()
+        self.time_left.draw(self.window)
         self.window.blit(self.circle.canvas, self.circle_coord)
         for i in self.numbers:
             i.draw(self.window)
@@ -82,9 +92,9 @@ class Window:
 
     def update_circle_sizes(self):
         if self.height < self.width:
-            circle_size = self.height/3*2
+            circle_size = self.height/self.size_divider
         else:
-            circle_size = self.width / 3 * 2
+            circle_size = self.width / self.size_divider
 
         self.circle.size = circle_size
         self.circle_coord = [self.width / 2 - circle_size / 2, self.height / 2 - circle_size / 2]
@@ -124,11 +134,10 @@ class Window:
 
     def update_numbers(self):
         number = Number()
-        for i, x in enumerate(self.numbers):
-            for y, d in list(enumerate(number)):
-                print(y, d)
-                if i == y:
-                    x_coord = self.width/2+math.cos(math.radians(self.circle.get_usable_angle(d)))*self.circle.size/1.7
-                    y_coord = self.height/2+math.sin(math.radians(self.circle.get_usable_angle(d)))*self.circle.size/1.7
-                    x.update(self.circle.size/10, [x_coord, y_coord])
-                    break
+        number = list(enumerate(number))
+        iterations = len(list(enumerate(self.numbers)))
+        for i in range(iterations):
+            x_coord = self.width/2+math.cos(math.radians(self.circle.get_usable_angle(number[i][1])))*self.circle.size/1.7
+            y_coord = self.height/2+math.sin(math.radians(self.circle.get_usable_angle(number[i][1])))*self.circle.size/1.7
+            self.numbers[i].update(self.circle.size/10, [x_coord, y_coord])
+

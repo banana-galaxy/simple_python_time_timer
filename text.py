@@ -14,6 +14,10 @@ class Text:
         self.rendered = self.font.render(self.text, True, (0, 0, 0))
         self.coords = coords
 
+    def update_text(self, text):
+        self.text = text
+        self.rendered = self.font.render(self.text, True, (0, 0, 0))
+
     def draw(self, surface):
         x, y = self.rendered.get_size()
         surface.blit(self.rendered, (self.coords[0]-x/2, self.coords[1]-y/2))

@@ -8,8 +8,10 @@ class Polygon:
         self.coords = [[0, size / 2], [size / 2, size / 2], [size / 2, 0], [size, 0], [size, size], [0, size]]
         self.square = [[size, 0], [size, size], [0, size], [0, 0]]
         self.angles = [[-0.1, -90], [0.0, 90], [90.0, 180.0], [-90.0, -180]]
+        self.angle = math.radians(-180)
 
     def update(self, size, angle):
+        self.angle = angle
         self.coords[0] = [size / 2 + math.cos(angle) * (size / 2), size / 2 + math.sin(angle) * (size / 2)]
         read_angle = math.degrees(angle)
         self.coords = self.coords[:3]
@@ -22,6 +24,9 @@ class Polygon:
     def draw(self, surface):
         pygame.draw.polygon(surface, (255, 255, 255), self.coords)
 
+    def update_size(self, size):
+        self.coords = [[size / 2 + math.cos(self.angle) * (size / 2), size / 2 + math.sin(self.angle) * (size / 2)], [size / 2, size / 2], [size / 2, 0]]
+        self.square = [[size, 0], [size, size], [0, size], [0, 0]]
 
 class Circle:
     def __init__(self, size):
@@ -30,10 +35,14 @@ class Circle:
         self.pointer = [0, 0]
         self.angle = 180
         self.polygon = Polygon(self.size)
+        self.data = []
+        self.update([math.radians(-180)])
 
     def update(self, data: list):
+        self.data = data
         if self.canvas.get_size() != self.size:
             self.canvas = pygame.Surface((self.size, self.size))
+            self.polygon.update_size(self.size)
 
         if len(data) == 2:
             self.angle = self.get_mouse_angle(data)
@@ -45,8 +54,12 @@ class Circle:
 
     def draw(self):
         self.canvas.fill((255, 255, 255))
-        pygame.draw.circle(self.canvas, (255, 0, 0), (self.size / 2, self.size / 2), self.size / 2)
+        pygame.draw.circle(self.canvas, (255, 0, 50), (self.size / 2, self.size / 2), self.size / 2)
         self.polygon.draw(self.canvas)
+
+    def update_polygon_size(self):
+        self.polygon.update_size(self.size)
+        self.update(self.data)
 
     def get_mouse_angle(self, mouse):
         dx = mouse[0] - self.size / 2
