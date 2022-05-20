@@ -25,7 +25,6 @@ class Window:
             circle_size = self.height/self.size_divider
         else:
             circle_size = self.width / self.size_divider
-        print(circle_size)
         self.circle = Circle(circle_size)
         self.circle_coord = [self.width/2-circle_size/2, self.height/2-circle_size/2]
 
