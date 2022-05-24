@@ -65,6 +65,8 @@ class Window:
         elif self.state.get_state() == "run":
             self.circle.update([self.get_angle_from_time()])
 
+        print(self.circle.get_read_angle())
+
     def draw(self):
         self.window.fill((255, 255, 255))
         self.circle.draw()
@@ -113,7 +115,14 @@ class Window:
         else:
             angle = 360 - (90-read_angle)
 
-        self.set_time = angle*10
+        # round up .9999
+        angle = str(angle * 10)
+        if angle.split('.')[1][0:4] == "9999":
+            angle = int(float(angle))
+            angle += 1
+        angle = float(angle)
+
+        self.set_time = angle
 
     def get_angle_from_time(self):
         angle = self.timer.get_time()/60*6
